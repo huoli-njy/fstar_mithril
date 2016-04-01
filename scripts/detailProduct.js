@@ -200,6 +200,11 @@ fstar.detailProduct = (function() {
         }
         
         // var payType = productType==4 || productType == 6;
+        var tags= product.tags || [];
+        var guzhecancelable = 0;
+        if(tags.indexOf("不可取消") > -1){
+          guzhecancelable = 1;
+        }
         
         var hotelInfoData={
           "needcreditgarantee": needcreditgarantee,
@@ -251,6 +256,7 @@ fstar.detailProduct = (function() {
           "hoteladdress": self.hotelInfo().address,
           "youhui": product.youhui,
           "youhuie": product.youhuie,
+          "guzhecancelable": guzhecancelable,
           "paramprivate": JSON.stringify(product.paramprivate || {})
           // "customersCount":'5',
           // "guestCount":'5',// 入住人数量
@@ -533,8 +539,14 @@ fstar.detailProduct = (function() {
           var breakfast = product.breakfast;
           var final_addbed = util.ADDBED[addbed] || '';
 
-          if(ratePlanInfo.paytype == 2 && ratePlanInfo.needcreditgarantee == "true"){
-            paytype = '担保';
+          // if(ratePlanInfo.paytype == 2 && ratePlanInfo.needcreditgarantee == "true"){
+          //   paytype = '担保';
+          // }
+          //  calcguarantee逻辑是： 0：不担保（显示预付或者到付）  1.条件担保  2.强制担保
+          if(product.calcguarantee == 1){
+            paytype = '条件担保';
+          } else if(product.calcguarantee == 2){
+            paytype = '强制担保';
           }
 
           var advanceBookHours = parseInt(ratePlanInfo.advancebookhours);

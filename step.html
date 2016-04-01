@@ -61,6 +61,12 @@
   sudo fis3 server start -p 15080
   sudo fis3 release -w
   <!-- /usr/local/etc/nginx/nginx.conf  -->
+  
+  <!-- 网页版测试账号 -->
+  util.header = {p:"hbgj",Authorization:"0A45E599A9314E2A78757D92C697FCE8",phoneid:"411957"};
+  sessionStorage.setItem('__header',JSON.stringify(util.header))
+  <!-- sessionStorage.removeItem('__header') -->
+
 
   <!-- dev0 测试服务器 -->
   <!-- sudo fis release -mp -d /Users/njy/Documents/publish/fe/5star_customer -->

@@ -904,7 +904,7 @@ fstar.listApp = (function() {
       var trip = m.route.param('trip');
       if (trip) {
         vm.trip(trip);
-         //改变顶部右侧按钮 
+        //改变顶部右侧按钮 
         util.rightButtonText();
       }
     }

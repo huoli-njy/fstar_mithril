@@ -423,7 +423,7 @@ fstar.orderApp = (function() {
             "cancelable":'' + self.cancelable(),// 是否可取消：0  是可以取消    1是不可取消
             "customersCount":'' + self.hotelroomNum(),
             "guestCount":'' + self.hotelroomNum(),// 入住人数量
-            "lateArrDateTime": lateArrDateTime,// 最晚到店日期 yyyy-MM-dd HH:mm:ss  "2016-02-03 18:00:00"
+            "lateArrDateTime": '' +lateArrDateTime,// 最晚到店日期 yyyy-MM-dd HH:mm:ss  "2016-02-03 18:00:00"
             "adultCount":'' + self.hotelroomNum(),//成人数量
             "offlineprice": ''+offlineprice,
             "hotelcode":'' + self.hotelcode(),
@@ -486,27 +486,14 @@ fstar.orderApp = (function() {
               }
             });
           } else {
-          //  var url =  window.apiRootPath + '/nativeOrderPreview.html?orderInfo=' + encodeURIComponent(JSON.stringify({
-          //   n: orderData.hotelName,
-          //   ci: orderData.checkInDate,
-          //   co: orderData.checkOutDate,
-          //   r: self.roomTypeName(),
-          //   b: self.breakFastQty(),
-          //   rc: orderData.roomCount,
-          //   pt: orderData.productType, //1-到付酒店 4-预付酒店（下单进入支付流程） 6-部分付（p2p到付）  7-担保到付
-          //   rp: orderData.realPrice,// 付款价格
-          //   olp: orderData.offlineprice //到付
-          // }));
-          //  location.href = url;
-
-            self.isPaying(false);
-            util.hideLoading();
-            util.alert({
-              title: util.HOTEL_PLATFORM_TYPE[util.PLATFORM.CURRENT] + '无法提交订单',
-              content: '请到航班管家或高铁管家提交订单'
-            });
-            return;
-            // self.realPay(orderData);
+            // self.isPaying(false);
+            // util.hideLoading();
+            // util.alert({
+            //   title: util.HOTEL_PLATFORM_TYPE[util.PLATFORM.CURRENT] + '无法提交订单',
+            //   content: '请到航班管家或高铁管家提交订单'
+            // });
+            // return;
+            self.realPay(orderData);
           }
           
         } else {
@@ -516,20 +503,24 @@ fstar.orderApp = (function() {
       },
       realPay: function(orderData) {
         var self = this;
-        var dataReq = {};
+        // var dataReq = {};
         // http://43.241.208.207:9000/hotel/order?handler=create&header={p:%22hbgj%22,Authorization:%22FCB15CEA57CCF82A29DA5A6745079B1D%22,phoneid:%2210235%22}&data={%22pageIndex%22:%220%22,%22count%22:%2210%22}
         
-        dataReq.handler="create";
-        dataReq.header=JSON.stringify(util.header);
-        dataReq.data=JSON.stringify(orderData);
-        util.log(dataReq);
+        // dataReq.handler="create";
+        // dataReq.header=JSON.stringify(util.header);
+        // dataReq.data=JSON.stringify(orderData);
+        var dataReq = '';
+        dataReq +='handler=create&';
+        dataReq +='header='+JSON.stringify(util.header)+'&';
+        dataReq +='data='+JSON.stringify(orderData);
+        // console.log(encodeURI(dataReq));
         // alert(JSON.stringify(util.header));
         // alert(JSON.stringify(dataReq));
         m.request({
-          method: 'get',
+          method: 'post',
           // url: window.apiRootPath + '/hotel/order?handler=create'+'&header='+header+'&data='+JSON.stringify(data)',
           url: util.INTERFACE_ADDORDERDATA,
-          data: dataReq,
+          data: encodeURI(dataReq),
           background: true
         }).then(function(data) {
           // alert(JSON.stringify(data));
@@ -1304,9 +1295,13 @@ fstar.orderApp = (function() {
             m('li.clearfix',{
               id: 'orderApp-lastest'
             }, [
-              m('span.label', '最晚到店日期'),
+              m('span.label', '最晚到店日期  (' + lastestDate +')'),
+              m('span.labeltip', [
+                m('.labeltip-icon', '＊'),
+                '如晚于此时间，酒店不保留房间'
+              ]),
               m('span.content', [
-                m('span.orderApp-form-room-lastest-time', lastestDate),
+                // m('span.orderApp-form-room-lastest-time', lastestDate),
                 m('span.orderApp-form-room-lastest-input', [
                   m('span.orderApp-form-room-lastest-input-reduce', {
                     className: ctrl.lastestDateReduce() ? 'no-tap' : '', 
@@ -1323,15 +1318,15 @@ fstar.orderApp = (function() {
               ])
             ]),
 
-            // m('li', [
-            //   m('span.label', '特殊要求'),
-            //   m('span.content', {
-            //     honclick: ctrl.goDemand.bind(ctrl),
-            //   },[
-            //     m('span.orderApp-bedtype', ctrl.bedtypePrefer()),
-            //     m('.orderApp-arrow-right.common-icon-more-right')
-            //   ])
-            // ]),
+            m('li', [
+              m('span.label', '特殊要求'),
+              m('span.content', {
+                honclick: ctrl.goDemand.bind(ctrl),
+              },[
+                m('span.orderApp-bedtype', ctrl.bedtypePrefer()),
+                m('.orderApp-arrow-right.common-icon-more-right')
+              ])
+            ]),
           ]),
           m('.common-border')
         ]),
@@ -1533,7 +1528,11 @@ fstar.orderApp = (function() {
             ' 18:00前，可免费变更或取消订单，服务费全部原路退回。之后，取消或变更将扣除首晚服务费。']
           ):'',
           m('li', [m('span.orderApp-icon-circle'), '未标注『立即确认』的产品需等待酒店确认，如无法确认则全额退款。']
-          )
+          ),
+          ctrl.guzhecancelable() == '1'?m('li', [m('span.orderApp-icon-circle'), '标注『不可取消』的产品订单提交后不可取消或修改，如未预订成功，预付费用全部原路退还。']
+          ):'',
+
+          
           // m('li', [m('span.orderApp-icon-circle'), '确认前，免费取消，预付的费用全额退回。']
           // ),
           // m('li', [m('span.orderApp-icon-circle'), '成功确认后，不可取消或变更订单。'])

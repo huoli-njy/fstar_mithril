@@ -124,6 +124,15 @@ util.userCenter = (function() {
           if(location.href.indexOf('103.37.151.253') > -1 || location.href.indexOf('localhost') > -1){
             util.header = {p:"hbgj",Authorization:"0A45E599A9314E2A78757D92C697FCE8",phoneid:"411957"};
           }
+          /* 
+           *util.header = {p:"hbgj",Authorization:"0A45E599A9314E2A78757D92C697FCE8",phoneid:"411957"};
+           *sessionStorage.setItem('__header',JSON.stringify(util.header))
+           *sessionStorage.removeItem('__header')
+          */
+          var __header = sessionStorage.getItem('__header');
+          if( __header ){
+            util.header = JSON.parse(__header);
+          }
           
           util.HUOLIUSER_INFO={};
           util.HUOLIUSER_INFO.phone = '15392968762';
